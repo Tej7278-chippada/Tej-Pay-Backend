@@ -26,7 +26,7 @@ const razorpay = new Razorpay({
 
 // Payment Route
 app.post("/api/payments", async (req, res) => {
-  const { amount, contact, email } = req.body; // Include contact and email in the request
+  const { amount, contact, email, payment_method } = req.body; // Include contact and email in the request
   try {
     const order = await razorpay.orders.create({
       amount: amount * 100, // Amount in paise
@@ -41,8 +41,9 @@ app.post("/api/payments", async (req, res) => {
       currency: order.currency,
       status: "created",
       created_at: new Date(),
-      contact,
-      email,
+      contact : contact || "N/A",
+      email : email || "N/A",
+      payment_method : payment_method || "N/A",
     });
     await payment.save();
 
@@ -55,7 +56,10 @@ app.post("/api/payments", async (req, res) => {
 
 
 app.post("/api/payments/update", async (req, res) => {
-  const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
+  const { razorpay_payment_id, razorpay_order_id, razorpay_signature, status,
+    contact,
+    email,
+    payment_method, } = req.body;
 
   try {
     // Verify payment signature (optional but recommended for security)
@@ -75,6 +79,9 @@ app.post("/api/payments/update", async (req, res) => {
       {
         razorpay_payment_id,
         status: "captured",
+        contact : contact || "N/A",
+        email : email || "N/A",
+        payment_method : payment_method || "N/A",
         updated_at: new Date(),
       },
       { new: true }
@@ -162,8 +169,17 @@ app.get("/api/payments/:paymentId", async (req, res) => {
 // Fetch Payment History
 app.get("/api/payments-history", async (req, res) => {
   try {
-    const payments = await razorpay.payments.all();
-    res.json(payments.items);
+    let allPayments = [];
+    let options = { count: 100, skip: 0 }; // Fetch up to 100 records per call
+    let response;
+
+    do {
+      response = await razorpay.payments.all(options);
+      allPayments = allPayments.concat(response.items);
+      options.skip += response.count; // Increment the skip value for the next batch
+    } while (response.items.length > 0);
+
+    res.json(allPayments);
   } catch (error) {
     console.error("Failed to fetch payment history:", error);
     res.status(500).json({ error: "Failed to fetch payment history" });
