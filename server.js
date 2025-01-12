@@ -191,4 +191,4 @@ app.get("/api/payments-history", async (req, res) => {
 // app.use('/api/payments', PaymentRoutes);
 
 const PORT = process.env.PORT || 5003;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port http://192.168.121.172:${PORT}`));
