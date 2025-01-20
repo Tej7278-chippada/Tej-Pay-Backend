@@ -8,6 +8,8 @@ const Payment = require("./models/Payment");
 const Razorpay = require("razorpay");
 dotenv.config();
 const authRoutes = require('./routes/authRoutes');
+const User = require("./models/userModel");
+const { authMiddleware } = require("./middleware/auth");
 
 const app = express();
 app.use(cors());
@@ -26,8 +28,9 @@ const razorpay = new Razorpay({
 
 
 // Payment Route
-app.post("/api/payments", async (req, res) => {
+app.post("/api/payments", authMiddleware, async (req, res) => {
   const { amount, contact, email, payment_method } = req.body; // Include contact and email in the request
+  const userId = req.user.id;
   try {
     const order = await razorpay.orders.create({
       amount: amount * 100, // Amount in paise
@@ -47,6 +50,12 @@ app.post("/api/payments", async (req, res) => {
       payment_method : payment_method || "N/A",
     });
     await payment.save();
+
+    // Reflect order in user and seller data
+    const user = await User.findById(userId);
+    user.payments.push(payment._id); // Assuming 'payments' is an array
+    await user.save();
+
 
     res.json(order);
   } catch (error) {

@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema({
     pincode: { type: String, required: true },
   }, createdAt: { type: Date, default: Date.now } }],
   orders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }], // Reference to orders
+  payments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Payment' }], // Reference to payments
   otp: { type: Number },
   otpExpiry: { type: Date }
 });
