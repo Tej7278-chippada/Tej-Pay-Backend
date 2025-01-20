@@ -7,6 +7,7 @@ const PaymentRoutes = require('./routes/PaymentRoutes');
 const Payment = require("./models/Payment");
 const Razorpay = require("razorpay");
 dotenv.config();
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 app.use(cors());
@@ -189,6 +190,7 @@ app.get("/api/payments-history", async (req, res) => {
 
 // Define routes
 // app.use('/api/payments', PaymentRoutes);
+app.use('/api/auth', authRoutes);
 
 const PORT = process.env.PORT || 5003;
 app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port http://192.168.79.172:${PORT}`));
