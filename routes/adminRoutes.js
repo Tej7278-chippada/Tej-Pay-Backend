@@ -18,14 +18,40 @@ const razorpay = new Razorpay({
 
 
 // Payment History Route: Fetch all payment records stored on TejPay database.
-router.get("/payments-history", async (req, res) => {
+router.get("/", async (req, res) => {
     try {
-    const payments = await Payment.find().sort({ created_at: -1 }); // Sort by newest first
-    res.json(payments);
+      // Extract filter parameters from query string
+      const { page = 1, limit = 12 } = req.query;
+      const skip = (page - 1) * limit; // Calculate documents to skip
+      // Fetch products with the applied filters
+      const payments = await Payment.find().sort({ created_at: -1 })
+      .skip(skip)
+      .limit(Number(limit)); // Fetch only the current page's products
+      const totalPayments = await Payment.countDocuments(); // Total number of products matching the filter
+
+      res.json({
+        payments,
+        totalPayments,
+        totalPages: Math.ceil(totalPayments / limit),
+        // currentPage: parseInt(page),
+      });
+
+    // const payments = await Payment.find().sort({ created_at: -1 }); // Sort by newest first
+    // res.json(payments);
     } catch (error) {
     console.error("Error fetching payment history:", error);
     res.status(500).json({ error: "Failed to fetch payment history" });
     }
+});
+
+router.get("/payments-history", async (req, res) => {
+  try {
+  const payments = await Payment.find().sort({ created_at: -1 }); // Sort by newest first
+  res.json(payments);
+  } catch (error) {
+  console.error("Error fetching payment history:", error);
+  res.status(500).json({ error: "Failed to fetch payment history" });
+  }
 });
 
 // Fetch Payment History from RazorPay database
