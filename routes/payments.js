@@ -122,15 +122,15 @@ router.get("/:orderId", async (req, res) => {
 });
 
 // Payment History Route: Fetch all payment records.
-router.get("/", async (req, res) => {
-    try {
-    const payments = await Payment.find().sort({ created_at: -1 }); // Sort by newest first
-    res.json(payments);
-    } catch (error) {
-    console.error("Error fetching payment history:", error);
-    res.status(500).json({ error: "Failed to fetch payment history" });
-    }
-});
+// router.get("/", async (req, res) => {
+//     try {
+//     const payments = await Payment.find().sort({ created_at: -1 }); // Sort by newest first
+//     res.json(payments);
+//     } catch (error) {
+//     console.error("Error fetching payment history:", error);
+//     res.status(500).json({ error: "Failed to fetch payment history" });
+//     }
+// });
 
 // Fetch Single Payment Details from Razorpay API
 router.get("/details/:id", async (req, res) => {
@@ -179,5 +179,24 @@ router.get("/payment-details/:paymentId", async (req, res) => {
 //     }
 // });
   
+// Fetch User Payment History
+router.get("/", authMiddleware, async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const user = await User.findById(userId).populate("payments");
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    // Filter the payments to include only those made by the user
+    const userPayments = await Payment.find({ _id: { $in: user.payments } }).sort({ created_at: -1 });
+    if (!userPayments.length) {
+      return res.status(404).json({ error: "No payments found for user" });
+    }
+    res.json(userPayments);
+  } catch (error) {
+    console.error("Error fetching payment history:", error);
+    res.status(500).json({ error: "Failed to fetch payment history" });
+  }
+});
 
 module.exports = router;
