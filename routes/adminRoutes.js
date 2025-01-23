@@ -1,4 +1,4 @@
-// routes/payments.js
+// routes/adminRoutes.js
 const express = require("express");
 // const { authMiddleware } = require("../middleware/auth");
 const Payment = require("../models/Payment");
