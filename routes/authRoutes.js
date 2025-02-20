@@ -86,8 +86,8 @@ router.post('/register', upload.single('profilePic'), async (req, res) => {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email,
-      subject: 'Welcome to TejCart',
-      text: `Your TejCart account has username of ${username} created successfully, and binded with this mail id ${email}.`,
+      subject: 'Welcome to TejPay',
+      text: `Your TejPay account has username of ${username} created successfully, and binded with this mail id ${email}.`,
     });
 
     console.log('Registered user:', newUser); // Log the newly saved user
@@ -200,13 +200,13 @@ router.post('/request-otp', async (req, res) => {
       await transporter.sendMail({
         to: contact,
         subject: 'Password Reset OTP',
-        text: `Your TejChat App account password reset OTP is ${otp}. It is valid for 10 minutes.`
+        text: `Your TejPay App account password reset OTP is ${otp}. It is valid for 10 minutes.`
       });
     } else {
       await twilioClient.messages.create({
         to: contact,
         from: process.env.TWILIO_PHONE_NUMBER,
-        body: `Your TejChat App account password reset OTP is ${otp}. It is valid for 10 minutes.`
+        body: `Your TejPay App account password reset OTP is ${otp}. It is valid for 10 minutes.`
       });
     }
 
@@ -240,13 +240,13 @@ router.post('/resend-otp', async (req, res) => {
       await transporter.sendMail({
         to: contact,
         subject: 'Password Reset OTP',
-        text: `Your TejChat App new OTP is ${otp}. It is valid for 10 minutes.`,
+        text: `Your TejPay App new OTP is ${otp}. It is valid for 10 minutes.`,
       });
     } else {
       await twilioClient.messages.create({
         to: contact,
         from: process.env.TWILIO_PHONE_NUMBER,
-        body: `Your TejChat App new OTP is ${otp}. It is valid for 10 minutes.`,
+        body: `Your TejPay App new OTP is ${otp}. It is valid for 10 minutes.`,
       });
     }
 
